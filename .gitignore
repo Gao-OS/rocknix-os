@@ -1,0 +1,23 @@
+# Devenv
+.devenv/
+.devenv.flake.nix
+devenv.lock
+
+# Direnv
+.direnv/
+
+# Build outputs
+build/
+*.img
+*.img.gz
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
