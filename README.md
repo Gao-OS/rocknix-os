@@ -62,9 +62,20 @@ make build DEVICE=RG353P
 
 ## Build Output
 
-Images will be generated in `rocknix/release/` after a successful build.
+Images will be generated in `rocknix/target/` after a successful build:
+- `ROCKNIX-<DEVICE>.aarch64-<DATE>-Generic.img.gz` - Generic image
+- `ROCKNIX-<DEVICE>.aarch64-<DATE>-Specific.img.gz` - Device-specific image
 
 ## Customization
+
+See [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) for detailed instructions on:
+- Changing logos and branding
+- System and device configuration
+- EmulationStation menu customization
+- Adding systemd services
+- Adding scripts
+- Creating new software packages
+- Integrating emulators
 
 Edit `devenv.nix` to add additional build dependencies.
 
