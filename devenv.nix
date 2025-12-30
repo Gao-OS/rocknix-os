@@ -107,7 +107,7 @@ let
       p7zip
 
       # Development headers
-      linux-headers
+      linuxHeaders
 
       # Ccache for faster rebuilds
       ccache
