@@ -54,18 +54,23 @@ make distclean         # Full clean including downloads
 ```
 rocknix-os/
 ├── devenv.nix      # Nix FHS environment (buildFHSEnv) with build dependencies
-├── Makefile        # Build wrapper translating device names to ROCKNIX params
+├── Makefile        # Build wrapper with custom output directory
+├── scripts/        # Custom build scripts
+│   ├── build.sh    # Main build script
+│   └── clean.sh    # Clean script
+├── out/            # Build output (per-device subdirectories)
+│   └── RGB30/      # Output for RGB30 device
 └── source/         # ROCKNIX distribution submodule (upstream source)
     ├── projects/   # Device/SoC-specific configurations
     ├── packages/   # Package build recipes
-    └── scripts/    # Build system scripts
+    └── scripts/    # Upstream build scripts
 ```
 
 **Build flow:** The top-level Makefile maps friendly device names (RGB30, RG353P) to ROCKNIX build parameters (PROJECT=Rockchip, DEVICE=RK3566) and invokes the upstream build system.
 
 **FHS Environment:** The devenv.nix uses `buildFHSEnv` to create an FHS-compliant sandbox where standard Linux paths (/usr/bin, /usr/lib, etc.) exist. This is required because Buildroot expects a traditional Linux filesystem layout.
 
-**Output:** Built images are generated in `source/target/`.
+**Output:** Built images are generated in `out/<DEVICE>/` (e.g., `out/RGB30/`).
 
 ## Device Mapping
 

@@ -78,17 +78,30 @@ cd source && make RK3566
 | Command | Description |
 |---------|-------------|
 | `make build` | Build complete ROCKNIX image (Docker) |
+| `make fhs-build` | Build using native FHS environment |
 | `make docker-shell` | Enter Docker build shell |
 | `make menuconfig` | Configure build options |
 | `make clean` | Clean build artifacts |
-| `make distclean` | Full clean including downloads |
+| `make clean-out` | Clean output directory (`out/`) |
+| `make distclean` | Full clean including downloads and output |
 | `make help` | Show available commands |
 
 ## Build Output
 
-Images will be generated in `source/target/` after a successful build:
-- `ROCKNIX-<DEVICE>.aarch64-<DATE>-Generic.img.gz` - Generic image (works on all RK3566 devices)
-- `ROCKNIX-<DEVICE>.aarch64-<DATE>-Specific.img.gz` - Device-specific image
+Images will be generated in `out/<DEVICE>/` after a successful build:
+```
+out/
+└── RGB30/
+    ├── ROCKNIX-RK3566.aarch64-20251230-Generic.img.gz
+    ├── ROCKNIX-RK3566.aarch64-20251230-Specific.img.gz
+    ├── ROCKNIX-RK3566.aarch64-20251230.tar
+    ├── latest-Generic.img.gz -> ROCKNIX-RK3566.aarch64-20251230-Generic.img.gz
+    └── latest-Specific.img.gz -> ROCKNIX-RK3566.aarch64-20251230-Specific.img.gz
+```
+
+- `*-Generic.img.gz` - Works on all RK3566 devices (auto-detects at boot)
+- `*-Specific.img.gz` - Device-specific image
+- `latest-*.img.gz` - Symlinks to the most recent build
 
 ## FHS Environment
 

@@ -1,8 +1,10 @@
 # ROCKNIX Build Wrapper
-# Supported devices: RGB30 (RK3566)
+# Custom build system for ROCKNIX OS
 
 PROJECT_DIR := $(shell pwd)
-ROCKNIX_DIR := $(PROJECT_DIR)/source
+SOURCE_DIR := $(PROJECT_DIR)/source
+SCRIPTS_DIR := $(PROJECT_DIR)/scripts
+OUT_DIR := $(PROJECT_DIR)/out
 DOCKER_IMAGE := ghcr.io/rocknix/rocknix-build:latest
 
 # Get user/group IDs for Docker
@@ -12,84 +14,118 @@ GID := $(shell id -g)
 # Default device
 DEVICE ?= RGB30
 
+# Number of parallel jobs
+JOBS ?= $(shell nproc)
+
 # Determine ROCKNIX device identifier
-ifeq ($(DEVICE),RGB30)
-    ROCKNIX_DEVICE := RK3566
-endif
+ROCKNIX_DEVICE := RK3566
 
-ifeq ($(DEVICE),RG353P)
-    ROCKNIX_DEVICE := RK3566
-endif
+# Device to ROCKNIX mapping (all RK3566-based)
+SUPPORTED_DEVICES := RGB30 RG353P RG353V RG353PS RG353VS RG503 RG-ARC-D RG-ARC-S RGB10MAX3 RGB20PRO RGB20SX RK2023 X35S X55
 
-ifeq ($(DEVICE),RG353V)
-    ROCKNIX_DEVICE := RK3566
-endif
-
-ifeq ($(DEVICE),RG503)
-    ROCKNIX_DEVICE := RK3566
-endif
-
-.PHONY: all build clean menuconfig distclean image help init docker-build docker-shell
+.PHONY: all build clean menuconfig distclean help init docker-build docker-shell fhs-build clean-out
 
 all: build
 
 help:
 	@echo "ROCKNIX Build System"
 	@echo ""
-	@echo "Usage: make [target] [DEVICE=<device>]"
+	@echo "Usage: make [target] [DEVICE=<device>] [JOBS=<n>]"
 	@echo ""
 	@echo "Targets:"
 	@echo "  init         - Initialize submodules"
 	@echo "  build        - Build ROCKNIX image using Docker (recommended)"
+	@echo "  fhs-build    - Build using native FHS environment (requires devenv)"
 	@echo "  docker-shell - Open shell in Docker build environment"
-	@echo "  image        - Build only the image (requires devenv shell)"
 	@echo "  menuconfig   - Configure build options"
 	@echo "  clean        - Clean build artifacts"
-	@echo "  distclean    - Full clean including downloads"
+	@echo "  clean-out    - Clean output directory"
+	@echo "  distclean    - Full clean including downloads and output"
 	@echo ""
 	@echo "Supported Devices:"
 	@echo "  RGB30        - Powkiddy RGB30 (default)"
 	@echo "  RG353P       - Anbernic RG353P"
 	@echo "  RG353V       - Anbernic RG353V"
 	@echo "  RG503        - Anbernic RG503"
+	@echo "  X55          - Powkiddy X55"
 	@echo ""
-	@echo "Example: make build DEVICE=RGB30"
+	@echo "Output: $(OUT_DIR)/<device>/"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make build DEVICE=RGB30"
+	@echo "  make build DEVICE=X55 JOBS=8"
 
 init:
 	git submodule update --init --recursive
 
-# Use Docker for building (recommended - handles all dependencies)
-build: init docker-build
+# Docker build (recommended)
+build: init docker-build copy-output
+	@echo ""
+	@echo "Build complete! Output: $(OUT_DIR)/$(DEVICE)/"
 
 docker-build:
+	@echo "Building ROCKNIX for $(DEVICE) ($(ROCKNIX_DEVICE)) using Docker..."
 	docker run --rm --user $(UID):$(GID) \
 		-v "$(PROJECT_DIR)":"$(PROJECT_DIR)" \
-		-w "$(ROCKNIX_DIR)" \
+		-w "$(SOURCE_DIR)" \
+		-e THREADCOUNT=$(JOBS) \
 		$(DOCKER_IMAGE) \
 		/bin/bash -c "make $(ROCKNIX_DEVICE)"
 
+# Copy output to out directory
+copy-output:
+	@echo "Copying output to $(OUT_DIR)/$(DEVICE)/..."
+	@mkdir -p "$(OUT_DIR)/$(DEVICE)"
+	@if [ -d "$(SOURCE_DIR)/target" ]; then \
+		for file in $(SOURCE_DIR)/target/ROCKNIX-$(ROCKNIX_DEVICE)*.img.gz \
+		            $(SOURCE_DIR)/target/ROCKNIX-$(ROCKNIX_DEVICE)*.tar \
+		            $(SOURCE_DIR)/target/ROCKNIX-$(ROCKNIX_DEVICE)*.sha256; do \
+			if [ -f "$$file" ]; then \
+				cp -v "$$file" "$(OUT_DIR)/$(DEVICE)/"; \
+			fi; \
+		done; \
+		cd "$(OUT_DIR)/$(DEVICE)" && \
+		for img in ROCKNIX-$(ROCKNIX_DEVICE)*-Generic.img.gz; do \
+			if [ -f "$$img" ]; then ln -sf "$$img" "latest-Generic.img.gz"; fi; \
+		done && \
+		for img in ROCKNIX-$(ROCKNIX_DEVICE)*-Specific.img.gz; do \
+			if [ -f "$$img" ]; then ln -sf "$$img" "latest-Specific.img.gz"; fi; \
+		done; \
+		echo ""; \
+		echo "Output files:"; \
+		ls -lh "$(OUT_DIR)/$(DEVICE)/"*.img.gz 2>/dev/null || true; \
+	else \
+		echo "Error: Build output not found"; \
+		exit 1; \
+	fi
+
+# FHS build (native, requires devenv shell)
+fhs-build: init
+	@echo "Building ROCKNIX for $(DEVICE) ($(ROCKNIX_DEVICE)) using FHS environment..."
+	DEVICE=$(DEVICE) JOBS=$(JOBS) $(SCRIPTS_DIR)/build.sh
+
+# Docker shell for manual operations
 docker-shell:
 	docker run --rm -it --user $(UID):$(GID) \
 		-v "$(PROJECT_DIR)":"$(PROJECT_DIR)" \
-		-w "$(ROCKNIX_DIR)" \
+		-w "$(SOURCE_DIR)" \
 		$(DOCKER_IMAGE) \
 		/bin/bash
 
-# Direct build (requires devenv shell with all dependencies)
-image: init
-	cd $(ROCKNIX_DIR) && \
-		DEVICE_ROOT=$(ROCKNIX_DEVICE) PROJECT=ROCKNIX DEVICE=$(ROCKNIX_DEVICE) ARCH=aarch64 \
-		./scripts/build_distro
-
+# Menuconfig
 menuconfig:
 	docker run --rm -it --user $(UID):$(GID) \
 		-v "$(PROJECT_DIR)":"$(PROJECT_DIR)" \
-		-w "$(ROCKNIX_DIR)" \
+		-w "$(SOURCE_DIR)" \
 		$(DOCKER_IMAGE) \
 		/bin/bash -c "PROJECT=ROCKNIX DEVICE=$(ROCKNIX_DEVICE) make kconfig-menuconfig-$(ROCKNIX_DEVICE)"
 
+# Clean targets
 clean:
-	cd $(ROCKNIX_DIR) && make clean
+	cd $(SOURCE_DIR) && make clean || true
 
-distclean:
-	cd $(ROCKNIX_DIR) && make distclean
+clean-out:
+	rm -rf $(OUT_DIR)
+
+distclean: clean-out
+	cd $(SOURCE_DIR) && make distclean || true

@@ -8,6 +8,7 @@ devenv.lock
 
 # Build outputs
 build/
+out/
 *.img
 *.img.gz
 
