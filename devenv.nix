@@ -5,7 +5,7 @@
   # Based on buildroot requirements
 
   env = {
-    ROCKNIX_ROOT = "${config.env.DEVENV_ROOT}/rocknix";
+    ROCKNIX_ROOT = "${config.env.DEVENV_ROOT}/source";
     # Build output directory
     BUILD_DIR = "${config.env.DEVENV_ROOT}/build";
   };

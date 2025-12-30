@@ -5,7 +5,7 @@ This guide explains how to customize ROCKNIX for your own distribution or device
 ## Directory Structure Overview
 
 ```
-rocknix/
+source/
 ├── distributions/ROCKNIX/     # Branding, logos, system options
 ├── projects/ROCKNIX/          # Device configs, packages, services
 │   ├── devices/               # Per-device configurations

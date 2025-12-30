@@ -40,7 +40,7 @@ make distclean  # full clean including downloads
 rocknix-os/
 ├── devenv.nix      # Nix environment with build dependencies
 ├── Makefile        # Build wrapper translating device names to ROCKNIX params
-└── rocknix/        # ROCKNIX distribution submodule (upstream source)
+└── source/         # ROCKNIX distribution submodule (upstream source)
     ├── projects/   # Device/SoC-specific configurations
     ├── packages/   # Package build recipes
     └── scripts/    # Build system scripts
@@ -48,7 +48,7 @@ rocknix-os/
 
 **Build flow:** The top-level Makefile maps friendly device names (RGB30, RG353P) to ROCKNIX build parameters (PROJECT=Rockchip, DEVICE=RK3566) and invokes the upstream build system.
 
-**Output:** Built images are generated in `rocknix/release/`.
+**Output:** Built images are generated in `source/target/`.
 
 ## Device Mapping
 

@@ -2,7 +2,7 @@
 # Supported devices: RGB30 (RK3566)
 
 PROJECT_DIR := $(shell pwd)
-ROCKNIX_DIR := $(PROJECT_DIR)/rocknix
+ROCKNIX_DIR := $(PROJECT_DIR)/source
 DOCKER_IMAGE := ghcr.io/rocknix/rocknix-build:latest
 
 # Get user/group IDs for Docker

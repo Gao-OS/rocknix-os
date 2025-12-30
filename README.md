@@ -62,7 +62,7 @@ make build DEVICE=RG353P
 
 ## Build Output
 
-Images will be generated in `rocknix/target/` after a successful build:
+Images will be generated in `source/target/` after a successful build:
 - `ROCKNIX-<DEVICE>.aarch64-<DATE>-Generic.img.gz` - Generic image
 - `ROCKNIX-<DEVICE>.aarch64-<DATE>-Specific.img.gz` - Device-specific image
 
