@@ -103,6 +103,27 @@ out/
 - `*-Specific.img.gz` - Device-specific image
 - `latest-*.img.gz` - Symlinks to the most recent build
 
+## Inspecting Images
+
+Use the mount script to inspect built images:
+
+```bash
+# Mount an image for inspection
+./scripts/mount-image.sh out/RGB30/latest-Specific.img.gz
+
+# After mounting, inspect at:
+#   /tmp/rocknix-inspect/boot    - Boot partition (kernel, device trees)
+#   /tmp/rocknix-inspect/system  - Root filesystem (emulators, configs)
+
+# Useful inspection commands
+ls /tmp/rocknix-inspect/boot/device_trees/      # Supported devices
+ls /tmp/rocknix-inspect/system/usr/lib/libretro/ # Emulator cores
+ls /tmp/rocknix-inspect/system/usr/bin/          # System binaries
+
+# Unmount when done
+./scripts/mount-image.sh --unmount
+```
+
 ## FHS Environment
 
 The `devenv.nix` uses Nix's `buildFHSEnv` to create an FHS (Filesystem Hierarchy Standard) compliant sandbox. This is necessary because:

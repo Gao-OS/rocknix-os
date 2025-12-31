@@ -1,0 +1,102 @@
+# ROCKNIX Build Log for RGB30
+
+## Build Summary
+- **Date**: 2025-12-30
+- **Device**: RGB30 (RK3566)
+- **Build Method**: Docker (ghcr.io/rocknix/rocknix-build:latest)
+- **Status**: SUCCESS
+
+## Build Details
+
+### Configuration
+- ROCKNIX_DEVICE: RK3566
+- JOBS: 1 (reduced due to meson lock race condition)
+- Docker Image: ghcr.io/rocknix/rocknix-build:latest
+- Docker Container: sleepy_euler
+
+### Build Duration
+- Total Build Time: ~10 hours
+- Container Runtime: ~11 hours (including setup)
+
+### Build Phases
+
+#### Phase 1: Main Build (aarch64)
+- **Total Packages**: 263
+- **Status**: COMPLETED
+
+#### Phase 2: lib32 Build (32-bit ARM)
+- **Status**: COMPLETED
+- Built lib32 versions of:
+  - box86 (x86 emulation layer)
+  - pcsx_rearmed-lr (PlayStation emulator)
+  - Various 32-bit ARM libraries for emulator compatibility
+
+#### Phase 3: Installation & Host Tools
+- **Total Packages**: 657
+- **Status**: COMPLETED
+- All packages built and installed successfully
+
+#### Phase 4: Image Creation
+- **Status**: COMPLETED
+- Squashfs filesystem created (1.5 GB compressed from 3.9 GB)
+- Both Generic and Specific images generated
+
+### Key Packages Built
+- **Core System**: kernel/linux, u-boot, mesa, SDL2
+- **Frontend**: RetroArch, EmulationStation (ES-DE)
+- **Emulators**:
+  - mame-lr (Arcade - 8,927+ source files)
+  - mame2003-plus-lr (Arcade)
+  - mame2010-lr (Arcade)
+  - mame2015-lr (Arcade)
+  - scummvm-lr (Adventure games - 9,141+ source files)
+  - melonds-lr/ds-lr (Nintendo DS)
+  - flycast-lr (Dreamcast)
+  - pcsx_rearmed-lr (PlayStation)
+  - ppsspp-lr (PSP)
+  - desmume-lr (Nintendo DS)
+  - dolphin-lr (GameCube/Wii)
+  - mupen64plus-lr (N64)
+  - And 100+ more libretro cores
+- **Utilities**: box86, portmaster, es-theme-art-book-next
+
+### Issues Encountered
+1. **Meson Lock Race Condition** (from previous build attempt)
+   - Initial builds with default parallelism failed due to meson lock conflicts
+   - Solution: Reduced JOBS to 1 to serialize builds
+   - This significantly increased build time but avoided the race condition
+
+### Output Files
+```
+out/RGB30/
+├── ROCKNIX-RK3566.aarch64-20251230-Generic.img.gz       (1.37 GB)
+├── ROCKNIX-RK3566.aarch64-20251230-Generic.img.gz.sha256
+├── ROCKNIX-RK3566.aarch64-20251230-Specific.img.gz      (1.37 GB)
+├── ROCKNIX-RK3566.aarch64-20251230-Specific.img.gz.sha256
+├── ROCKNIX-RK3566.aarch64-20251230.tar                  (1.55 GB)
+├── ROCKNIX-RK3566.aarch64-20251230.tar.sha256
+├── latest-Generic.img.gz -> ROCKNIX-RK3566.aarch64-20251230-Generic.img.gz
+└── latest-Specific.img.gz -> ROCKNIX-RK3566.aarch64-20251230-Specific.img.gz
+```
+
+### Image Details
+- **Generic Image**: Works on all RK3566 devices (auto-detects at boot)
+- **Specific Image**: Device-specific image for RGB30 (Powkiddy X55 DT)
+- **Tar Archive**: Contains system files for manual installation/update
+
+### SHA256 Checksums
+The `.sha256` files contain checksums for verification of downloaded images.
+
+## Installation
+1. Download `latest-Generic.img.gz` or `latest-Specific.img.gz`
+2. Extract and flash to microSD card using balenaEtcher, dd, or similar
+3. Insert card into RGB30 and power on
+4. First boot will expand the storage partition
+
+## Build Statistics
+- Total packages built: 657
+- Compression ratio: 39% (squashfs)
+- Output image size: ~1.4 GB compressed
+
+---
+*Build completed at 2025-12-30 23:34*
