@@ -4,6 +4,7 @@
 PROJECT_DIR := $(shell pwd)
 SOURCE_DIR := $(PROJECT_DIR)/source
 SCRIPTS_DIR := $(PROJECT_DIR)/scripts
+OVERLAY_DIR := $(PROJECT_DIR)/overlay
 OUT_DIR := $(PROJECT_DIR)/out
 DOCKER_IMAGE := ghcr.io/rocknix/rocknix-build:latest
 
@@ -23,7 +24,7 @@ ROCKNIX_DEVICE := RK3566
 # Device to ROCKNIX mapping (all RK3566-based)
 SUPPORTED_DEVICES := RGB30 RG353P RG353V RG353PS RG353VS RG503 RG-ARC-D RG-ARC-S RGB10MAX3 RGB20PRO RGB20SX RK2023 X35S X55
 
-.PHONY: all build clean menuconfig distclean help init docker-build docker-shell fhs-build clean-out
+.PHONY: all build clean menuconfig distclean help init docker-build docker-shell fhs-build clean-out apply-overlay
 
 all: build
 
@@ -69,9 +70,21 @@ init:
 	git submodule update --init --recursive
 
 # Docker build (recommended)
-build: init docker-build copy-output
+build: init apply-overlay docker-build copy-output
 	@echo ""
 	@echo "Build complete! Output: $(OUT_DIR)/$(DEVICE)/"
+
+# Apply overlay files to source directory
+apply-overlay:
+	@if [ -d "$(OVERLAY_DIR)" ]; then \
+		echo "Applying overlay files..."; \
+		cp -rv $(OVERLAY_DIR)/* $(SOURCE_DIR)/; \
+		if ! grep -q "mount-games-external.service" $(SOURCE_DIR)/projects/ROCKNIX/packages/rocknix/package.mk; then \
+			echo "Patching package.mk to enable mount-games-external.service..."; \
+			sed -i '/enable_service rocknix-autostart.service/a\  ### Mount external games storage before ES-DE starts\n  enable_service mount-games-external.service' \
+				$(SOURCE_DIR)/projects/ROCKNIX/packages/rocknix/package.mk; \
+		fi; \
+	fi
 
 docker-build:
 	@echo "Building ROCKNIX for $(DEVICE) ($(ROCKNIX_DEVICE)) using Docker..."
@@ -114,7 +127,7 @@ copy-output:
 	fi
 
 # FHS build (native, requires devenv shell)
-fhs-build: init
+fhs-build: init apply-overlay
 	@echo "Building ROCKNIX for $(DEVICE) ($(ROCKNIX_DEVICE)) using FHS environment..."
 	DEVICE=$(DEVICE) JOBS=$(JOBS) $(SCRIPTS_DIR)/build.sh
 

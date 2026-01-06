@@ -1,0 +1,12 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2024 Gao-OS
+#
+# Mount external games storage to roms directory
+
+GAMES_EXTERNAL="/storage/games-external"
+ROMS_DIR="/storage/roms"
+
+if [ -d "${GAMES_EXTERNAL}" ]; then
+    mount --bind "${GAMES_EXTERNAL}" "${ROMS_DIR}"
+fi

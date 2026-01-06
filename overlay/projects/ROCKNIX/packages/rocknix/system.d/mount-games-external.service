@@ -1,0 +1,12 @@
+[Unit]
+Description=Mount external games storage to roms
+After=rocknix-automount.service
+Before=emustation.service essway.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mount-games-external
+RemainAfterExit=yes
+
+[Install]
+WantedBy=rocknix.target
