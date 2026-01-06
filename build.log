@@ -80,18 +80,43 @@ out/RGB30/
 ```
 
 ### Image Details
-- **Generic Image**: Works on all RK3566 devices (auto-detects at boot)
-- **Specific Image**: Device-specific image for RGB30 (Powkiddy X55 DT)
+
+| Image | Device Tree | Use For |
+|-------|-------------|---------|
+| **Generic** | Auto-detected at boot (fdtdir) | RGB30, RG353, RG503, RG-ARC, RGB10MAX3, RGB20PRO/SX, RK2023 |
+| **Specific** | Hardcoded: `rk3566-powkiddy-x55.dtb` | Powkiddy X55 and X35S **ONLY** |
+
+**WARNING:** The Specific image is NOT for RGB30! It will cause display glitches.
+
 - **Tar Archive**: Contains system files for manual installation/update
 
 ### SHA256 Checksums
 The `.sha256` files contain checksums for verification of downloaded images.
 
 ## Installation
-1. Download `latest-Generic.img.gz` or `latest-Specific.img.gz`
+1. **For RGB30**: Use `latest-Generic.img.gz` (NOT Specific!)
 2. Extract and flash to microSD card using balenaEtcher, dd, or similar
 3. Insert card into RGB30 and power on
 4. First boot will expand the storage partition
+
+## Post-Build Issue: Device Tree Mismatch
+
+### Problem Discovered
+Testing the Specific image on RGB30 resulted in display glitches (flickering, pixel shifting, vertical lines).
+
+### Root Cause
+The Specific image is hardcoded for Powkiddy X55 device tree (`rk3566-powkiddy-x55.dtb`), not RGB30.
+This is defined in `source/projects/ROCKNIX/config.xml`:
+
+```xml
+<RK3566>
+    <Generic fdt="device_trees" fdt_type="fdtdir">  <!-- Auto-detects -->
+    <Specific fdt="device_trees/rk3566-powkiddy-x55.dtb">  <!-- X55 only! -->
+</RK3566>
+```
+
+### Solution
+Use the **Generic** image for RGB30. It auto-detects the correct device tree at boot.
 
 ## Build Statistics
 - Total packages built: 657

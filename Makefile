@@ -42,12 +42,22 @@ help:
 	@echo "  clean-out    - Clean output directory"
 	@echo "  distclean    - Full clean including downloads and output"
 	@echo ""
-	@echo "Supported Devices:"
+	@echo "Supported Devices (all RK3566-based):"
 	@echo "  RGB30        - Powkiddy RGB30 (default)"
-	@echo "  RG353P       - Anbernic RG353P"
-	@echo "  RG353V       - Anbernic RG353V"
+	@echo "  RG353P/V     - Anbernic RG353P, RG353V, RG353PS, RG353VS"
 	@echo "  RG503        - Anbernic RG503"
-	@echo "  X55          - Powkiddy X55"
+	@echo "  RG-ARC       - Anbernic RG-ARC-D, RG-ARC-S"
+	@echo "  X55/X35S     - Powkiddy X55, X35S"
+	@echo "  RGB10MAX3    - Powkiddy RGB10 MAX 3"
+	@echo "  RGB20PRO/SX  - Powkiddy RGB20 Pro, RGB20SX"
+	@echo "  RK2023       - Powkiddy RK2023"
+	@echo ""
+	@echo "Output Images:"
+	@echo "  *-Generic.img.gz  - Auto-detects device at boot (USE THIS FOR MOST DEVICES)"
+	@echo "  *-Specific.img.gz - Hardcoded for Powkiddy X55/X35S only"
+	@echo ""
+	@echo "IMPORTANT: For RGB30, RG353, RG503, RG-ARC, use the Generic image!"
+	@echo "           The Specific image is ONLY for Powkiddy X55 and X35S."
 	@echo ""
 	@echo "Output: $(OUT_DIR)/<device>/"
 	@echo ""
@@ -94,6 +104,10 @@ copy-output:
 		echo ""; \
 		echo "Output files:"; \
 		ls -lh "$(OUT_DIR)/$(DEVICE)/"*.img.gz 2>/dev/null || true; \
+		echo ""; \
+		echo "=== WHICH IMAGE TO USE ==="; \
+		echo "For $(DEVICE): Use latest-Generic.img.gz (auto-detects device)"; \
+		echo "Note: latest-Specific.img.gz is ONLY for Powkiddy X55/X35S"; \
 	else \
 		echo "Error: Build output not found"; \
 		exit 1; \

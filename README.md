@@ -99,9 +99,18 @@ out/
     └── latest-Specific.img.gz -> ROCKNIX-RK3566.aarch64-20251230-Specific.img.gz
 ```
 
-- `*-Generic.img.gz` - Works on all RK3566 devices (auto-detects at boot)
-- `*-Specific.img.gz` - Device-specific image
-- `latest-*.img.gz` - Symlinks to the most recent build
+### Which Image to Use
+
+| Image Type | Use For | Device Tree |
+|------------|---------|-------------|
+| **Generic** (recommended) | RGB30, RG353P/V, RG503, RG-ARC, RGB10MAX3, RGB20PRO/SX, RK2023 | Auto-detected at boot |
+| **Specific** | Powkiddy X55 and X35S **ONLY** | Hardcoded to X55 |
+
+**IMPORTANT:** For most devices including RGB30, use the **Generic** image!
+
+The Generic image uses U-Boot's device tree auto-detection (`fdtdir`) to select the correct hardware configuration at boot time. The Specific image has a hardcoded device tree for Powkiddy X55/X35S only.
+
+If you flash the Specific image to a non-X55 device, you will experience display glitches due to mismatched panel configuration.
 
 ## Inspecting Images
 
