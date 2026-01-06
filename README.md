@@ -84,6 +84,7 @@ cd source && make RK3566
 | `make clean` | Clean build artifacts |
 | `make clean-out` | Clean output directory (`out/`) |
 | `make distclean` | Full clean including downloads and output |
+| `make apply-overlay` | Apply overlay files to source (runs automatically during build) |
 | `make help` | Show available commands |
 
 ## Build Output
@@ -148,6 +149,39 @@ The `devenv.nix` uses Nix's `buildFHSEnv` to create an FHS (Filesystem Hierarchy
 - Kernel: bison, flex, dtc, libelf, linuxHeaders
 - Compression: lz4, zstd, lzo, cpio
 - Caching: ccache (configured for faster rebuilds)
+
+## Overlay System
+
+The `overlay/` directory contains custom modifications that are applied to the ROCKNIX source before building. This keeps the `source/` submodule read-only while allowing customizations.
+
+```
+overlay/
+└── projects/ROCKNIX/packages/rocknix/
+    ├── sources/scripts/          # Custom scripts (installed to /usr/bin)
+    │   └── mount-games-external
+    └── system.d/                 # Systemd services
+        └── mount-games-external.service
+```
+
+**How it works:**
+1. Files in `overlay/` mirror the `source/` directory structure
+2. During `make build`, overlay files are copied to `source/`
+3. The Makefile also patches `package.mk` to enable custom services
+4. Build proceeds with customizations applied
+
+### Included Customizations
+
+| File | Description |
+|------|-------------|
+| `mount-games-external.service` | Systemd service that bind mounts `/storage/games-external` to `/storage/roms` before ES-DE starts |
+
+### Adding Custom Files
+
+To add your own customizations:
+
+1. Create the file in `overlay/` matching the path in `source/`
+2. For systemd services, add a `sed` patch in the Makefile's `apply-overlay` target
+3. Run `make build` - your changes will be included
 
 ## Customization
 
