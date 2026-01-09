@@ -1,3 +1,15 @@
+---
+name: rocknix-os
+description: Build, customize, and troubleshoot ROCKNIX OS for handheld gaming devices
+when-to-use: |
+  Use this skill when:
+  - Building ROCKNIX images for RK3566 handhelds (RGB30, RG353, RG503, etc.)
+  - Adding custom systemd services or scripts to ROCKNIX
+  - Troubleshooting display glitches or boot issues
+  - Working with the overlay system to customize builds
+  - Inspecting or flashing built images
+---
+
 # ROCKNIX OS Build Skill
 
 This skill documents how to build, customize, and troubleshoot ROCKNIX OS for handheld gaming devices.
@@ -52,6 +64,7 @@ All RK3566-based devices:
 - **RG-ARC** - Anbernic RG-ARC-D, RG-ARC-S
 - **X55/X35S** - Powkiddy X55, X35S
 - **RGB10MAX3** - Powkiddy RGB10 MAX 3
+- **RGB20PRO/SX** - Powkiddy RGB20 Pro, RGB20SX
 - **RK2023** - Powkiddy RK2023
 
 ## Image Types
@@ -80,10 +93,12 @@ overlay/projects/ROCKNIX/packages/rocknix/sources/scripts/my-script
 chmod +x overlay/projects/ROCKNIX/packages/rocknix/sources/scripts/my-script
 ```
 
-3. Add to Makefile `apply-overlay` target:
+3. Add to Makefile `apply-overlay` target (check for service, then patch if missing):
 ```makefile
-sed -i '/enable_service rocknix-autostart.service/a\  enable_service my-service.service' \
-    $(SOURCE_DIR)/projects/ROCKNIX/packages/rocknix/package.mk
+if ! grep -q "my-service.service" $(SOURCE_DIR)/projects/ROCKNIX/packages/rocknix/package.mk; then \
+    sed -i '/enable_service rocknix-autostart.service/a\  ### My custom service\n  enable_service my-service.service' \
+        $(SOURCE_DIR)/projects/ROCKNIX/packages/rocknix/package.mk; \
+fi
 ```
 
 ### Service Example
