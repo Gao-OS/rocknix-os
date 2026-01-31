@@ -84,6 +84,11 @@ apply-overlay:
 			sed -i '/enable_service rocknix-autostart.service/a\  ### Mount external games storage before ES-DE starts\n  enable_service mount-games-external.service' \
 				$(SOURCE_DIR)/projects/ROCKNIX/packages/rocknix/package.mk; \
 		fi; \
+		if ! grep -q "Mount Games External" $(SOURCE_DIR)/projects/ROCKNIX/packages/misc/modules/sources/gamelist.xml; then \
+			echo "Patching gamelist.xml to add Mount Games External entry..."; \
+			sed -i '/<\/gameList>/i\    <game>\n        <path>./Mount Games External.sh</path>\n        <name>Mount Games External</name>\n        <desc>Mount external games storage (/storage/games-external) to /storage/roms using bind mount. Use this if games from external storage are not visible.</desc>\n        <developer>Gao-OS</developer>\n        <publisher>Gao-OS</publisher>\n        <rating>5.0</rating>\n        <releasedate>2024</releasedate>\n        <genre>tool</genre>\n        <players>1</players>\n    </game>' \
+				$(SOURCE_DIR)/projects/ROCKNIX/packages/misc/modules/sources/gamelist.xml; \
+		fi; \
 	fi
 
 docker-build:
