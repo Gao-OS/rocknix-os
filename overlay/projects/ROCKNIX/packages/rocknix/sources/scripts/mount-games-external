@@ -10,3 +10,4 @@ ROMS_DIR="/storage/roms"
 if [ -d "${GAMES_EXTERNAL}" ]; then
     mount --bind "${GAMES_EXTERNAL}" "${ROMS_DIR}"
 fi
+    

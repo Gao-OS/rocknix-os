@@ -24,7 +24,7 @@ ROCKNIX_DEVICE := RK3566
 # Device to ROCKNIX mapping (all RK3566-based)
 SUPPORTED_DEVICES := RGB30 RG353P RG353V RG353PS RG353VS RG503 RG-ARC-D RG-ARC-S RGB10MAX3 RGB20PRO RGB20SX RK2023 X35S X55
 
-.PHONY: all build clean menuconfig distclean help init docker-build docker-shell fhs-build clean-out apply-overlay
+.PHONY: all build clean menuconfig distclean help init docker-build docker-shell clean-out apply-overlay
 
 all: build
 
@@ -35,8 +35,7 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  init         - Initialize submodules"
-	@echo "  build        - Build ROCKNIX image using Docker (recommended)"
-	@echo "  fhs-build    - Build using native FHS environment (requires devenv)"
+	@echo "  build        - Build ROCKNIX image using Docker"
 	@echo "  docker-shell - Open shell in Docker build environment"
 	@echo "  menuconfig   - Configure build options"
 	@echo "  clean        - Clean build artifacts"
@@ -130,11 +129,6 @@ copy-output:
 		echo "Error: Build output not found"; \
 		exit 1; \
 	fi
-
-# FHS build (native, requires devenv shell)
-fhs-build: init apply-overlay
-	@echo "Building ROCKNIX for $(DEVICE) ($(ROCKNIX_DEVICE)) using FHS environment..."
-	DEVICE=$(DEVICE) JOBS=$(JOBS) $(SCRIPTS_DIR)/build.sh
 
 # Docker shell for manual operations
 docker-shell:
